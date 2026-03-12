@@ -1,2 +1,1 @@
-# ab-testing-framework
-Multivariant testing workflow step-by-step using SQL 
+Project overview and setup guide
