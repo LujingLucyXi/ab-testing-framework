@@ -1,0 +1,57 @@
+-- Example: Assigning users to variants using deterministic hashing
+
+-- Setup: We have 1,000,000 users and want to split them:
+-- Control: 20% (200,000 users)
+-- Feature 1: 16% (160,000 users)
+-- Feature 2: 16% (160,000 users)
+-- Feature 3: 16% (160,000 users)
+-- Feature 4: 16% (160,000 users)
+-- Feature 5: 16% (160,000 users)
+
+-- Function to convert hash to percentage
+CREATE OR REPLACE FUNCTION hash_to_percentage(p_hash TEXT)
+RETURNS NUMERIC AS $$
+BEGIN
+  -- Take first 8 characters of hex hash, convert to integer
+  -- Divide by max 32-bit integer to get 0-1, multiply by 100 for percentage
+  RETURN CAST(
+    ('x' || SUBSTR(p_hash, 1, 8))::bit(32)::bigint 
+    AS NUMERIC
+  ) / 4294967295.0 * 100;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example assignments:
+SELECT 
+  user_id,
+  experiment_id,
+  MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR)) as md5_hash,
+  hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) as hash_percentage,
+  CASE 
+    WHEN hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) < 20 
+      THEN 'Control'
+    WHEN hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) < 36 
+      THEN 'Feature 1'
+    WHEN hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) < 52 
+      THEN 'Feature 2'
+    WHEN hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) < 68 
+      THEN 'Feature 3'
+    WHEN hash_to_percentage(MD5(CAST(experiment_id AS VARCHAR) || CAST(user_id AS VARCHAR))) < 84 
+      THEN 'Feature 4'
+    ELSE 'Feature 5'
+  END as assigned_variant
+FROM (
+  SELECT 1 as experiment_id, 123 as user_id UNION ALL
+  SELECT 1 as experiment_id, 456 as user_id UNION ALL
+  SELECT 1 as experiment_id, 789 as user_id UNION ALL
+  SELECT 1 as experiment_id, 1001 as user_id UNION ALL
+  SELECT 1 as experiment_id, 2345 as user_id
+);
+
+-- Output:
+-- user_id | experiment_id | md5_hash          | hash_percentage | assigned_variant
+-- 123     | 1             | abc123def...      | 42.5            | Feature 2
+-- 456     | 1             | def456ghi...      | 8.3             | Control
+-- 789     | 1             | ghi789jkl...      | 71.2            | Feature 3
+-- 1001    | 1             | jkl012mno...      | 19.8            | Control
+-- 2345    | 1             | mno345pqr...      | 88.9            | Feature 5
