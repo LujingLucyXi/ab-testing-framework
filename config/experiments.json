@@ -1,1 +1,51 @@
-Experiment configuration template
+{
+  "experiment_id": "exp_001",
+  "name": "Feature Multivariate Test",
+  "description": "Testing 5 feature variants against control",
+  "start_date": "2026-03-12",
+  "end_date": "2026-03-26",
+  "test_groups": [
+    {
+      "group_id": 1,
+      "variant_code": "control",
+      "variant_name": "Control",
+      "percentage": 20.0,
+      "is_control": true
+    },
+    {
+      "group_id": 2,
+      "variant_code": "feature_1",
+      "variant_name": "Feature 1",
+      "percentage": 16.0,
+      "is_control": false
+    },
+    {
+      "group_id": 3,
+      "variant_code": "feature_2",
+      "variant_name": "Feature 2",
+      "percentage": 16.0,
+      "is_control": false
+    },
+    {
+      "group_id": 4,
+      "variant_code": "feature_3",
+      "variant_name": "Feature 3",
+      "percentage": 16.0,
+      "is_control": false
+    },
+    {
+      "group_id": 5,
+      "variant_code": "feature_4",
+      "variant_name": "Feature 4",
+      "percentage": 16.0,
+      "is_control": false
+    },
+    {
+      "group_id": 6,
+      "variant_code": "feature_5",
+      "variant_name": "Feature 5",
+      "percentage": 16.0,
+      "is_control": false
+    }
+  ]
+}
