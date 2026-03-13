@@ -57,6 +57,3 @@
 | Click Rate                | (Clicks) / (Impressions)                           |
 | Cohen's h                 | 2 * (Φ1 - Φ2) / √(1 - Φ1² - Φ2²)                   |
 
-## Resources
-- [Learning Material 1](https://example.com/learning1)
-- [Learning Material 2](https://example.com/learning2)
